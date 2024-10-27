@@ -1,5 +1,6 @@
 package pe.edu.cibertec.ws_soap_basedatos.repository;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 import pe.edu.cibertec.ws.objects.Moneda;
 import pe.edu.cibertec.ws.objects.Pais;
@@ -12,6 +13,7 @@ public class PaisRepository {
 
     private static final Map<String, Pais> paises = new HashMap<>();
 
+    @PostConstruct
     public void cargarPaises(){
         Pais objpais = new Pais();
         objpais.setNombre("Argentina");
