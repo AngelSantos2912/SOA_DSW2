@@ -2,8 +2,13 @@ package pe.edu.cibertec.ws_soap_basedatos.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pe.edu.cibertec.ws.objects.GetDomicilioResponse;
+import pe.edu.cibertec.ws.objects.GetListDomiciliosResponse;
+import pe.edu.cibertec.ws.objects.PostDomicilioRequest;
+import pe.edu.cibertec.ws.objects.PostDomicilioResponse;
 import pe.edu.cibertec.ws_soap_basedatos.model.bd.Domicilio;
 import pe.edu.cibertec.ws_soap_basedatos.repository.DomicilioRepository;
+import pe.edu.cibertec.ws_soap_basedatos.util.convert.DomicilioConvert;
 
 import java.util.List;
 
@@ -13,19 +18,39 @@ import java.util.List;
 public class DomicilioService implements IDomicilioService{
 
     private final DomicilioRepository domicilioRepository;
+    private final DomicilioConvert domicilioConvert;
+
 
     @Override
-    public List<Domicilio> obtenerDomicilios() {
-        return domicilioRepository.findAll();
+    public GetListDomiciliosResponse obtenerDomicilios() {
+        GetListDomiciliosResponse response = new GetListDomiciliosResponse();
+        response.getListdomicilios().addAll(
+                domicilioConvert.convertDomiciliosoapList(
+                        domicilioRepository.findAll()
+                )
+        );
+        return response;
     }
 
     @Override
-    public Domicilio obtenerDomicilio(int id) {
-        return domicilioRepository.findById(id).orElse(null);
+    public GetDomicilioResponse obtenerDomicilio(int id) {
+        GetDomicilioResponse response = new GetDomicilioResponse();
+        Domicilio domicilio = domicilioRepository.findById(id).orElse(null);
+        if (domicilio != null) {
+            response.setDomicilio(domicilioConvert.converDomiciliosoap(domicilio));
+        }
+        return response;
     }
 
     @Override
-    public Domicilio guardarDomicilio(Domicilio domicilio) {
-        return domicilioRepository.save(domicilio);
+    public PostDomicilioResponse guardarDomicilio(PostDomicilioRequest domicilio) {
+        PostDomicilioResponse response = new PostDomicilioResponse();
+        Domicilio nuevoDomicilio = domicilioRepository.save(
+                domicilioConvert.converDomicilioBD(domicilio.getDomicilio())
+        );
+        response.setDomicilio(
+                domicilioConvert.converDomiciliosoap(nuevoDomicilio)
+        );
+        return response;
     }
 }
